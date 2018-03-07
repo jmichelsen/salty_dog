@@ -55,8 +55,9 @@ class SaltLevelMonitor(object):
         # set GPIO direction (IN / OUT)
         GPIO.setup(settings.GPIO_TRIGGER, GPIO.OUT)
         GPIO.setup(settings.GPIO_ECHO, GPIO.IN)
+        return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, *args):
         GPIO.cleanup()
 
 
