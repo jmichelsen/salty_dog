@@ -11,22 +11,26 @@ twilio = Client(settings.TWILIO_PUBLIC_KEY, settings.TWILIO_SECRET_KEY)
 
 class SaltLevelMonitor(object):
     def check_salt_level(self):
+        print('checking salt level')
         distance = self.get_average_distance()
         if distance > settings.SALT_LEVEL_REPORTING_THRESHOLD:
             self.report_salt_level(distance)
 
     @staticmethod
     def report_salt_level(distance):
+        print('reporting salt level')
         message = settings.MESSAGE_TEMPLATE.copy()
         message['body'] = settings.SALT_LEVEL_ALERT_MESSAGE.format(distance)
         twilio.messages.create(**message)
 
     def get_average_distance(self):
+        print('getting average distance')
         reads = [self.get_distance() for read in range(settings.READS_PER_CHECK)]
         return sum(reads) / settings.READS_PER_CHECK
 
     @staticmethod
     def get_distance():
+        print('getting single distance')
         # set Trigger to HIGH
         GPIO.output(settings.GPIO_TRIGGER, True)
 
@@ -50,6 +54,7 @@ class SaltLevelMonitor(object):
         return (time_elapsed * settings.SPEED_OF_SOUND) / 2
 
     def __enter__(self):
+        print('entering context manager')
         GPIO.setmode(GPIO.BCM)
 
         # set GPIO direction (IN / OUT)
@@ -57,9 +62,11 @@ class SaltLevelMonitor(object):
         GPIO.setup(settings.GPIO_ECHO, GPIO.IN)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        print('exiting context manager')
         GPIO.cleanup()
 
 
 if __name__ == '__main__':
+    print('starting up')
     with SaltLevelMonitor() as monitor:
         monitor.check_salt_level()
