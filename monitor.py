@@ -11,21 +11,20 @@ twilio = Client(settings.TWILIO_PUBLIC_KEY, settings.TWILIO_SECRET_KEY)
 
 
 class SaltLevelMonitor(object):
-    def __init__(self, force_report=False, unit=settings.METRIC):
+    def __init__(self, force_report=False, unit=settings.METRIC, threshold=0):
         self.force_report = force_report
         self.unit = unit if unit in settings.VALID_UNITS else settings.METRIC
-        self.threshold = settings.SALT_LEVEL_REPORTING_THRESHOLD * settings.CM_TO_INCHES \
-            if unit == settings.IMPERIAL else self.threshold * 1
+        self.notation = 'in' if unit == settings.IMPERIAL else 'cm'
+        self.threshold = threshold
 
     def check_salt_level(self):
         distance = self.get_average_distance()
         if distance > self.threshold or self.force_report:
             self.report_salt_level(distance)
 
-    @staticmethod
-    def report_salt_level(distance):
+    def report_salt_level(self, distance):
         message = settings.MESSAGE_TEMPLATE.copy()
-        message['body'] = settings.SALT_LEVEL_ALERT_MESSAGE.format(distance)
+        message['body'] = settings.SALT_LEVEL_ALERT_MESSAGE.format(distance, self.notation)
         twilio.messages.create(**message)
 
     def get_average_distance(self):
@@ -55,7 +54,7 @@ class SaltLevelMonitor(object):
         time_elapsed = stop_time - start_time
         distance = (time_elapsed * settings.SPEED_OF_SOUND) / 2
         if self.unit == settings.IMPERIAL:
-            return distance * settings.CM_TO_INCHES
+            return distance / settings.CM_TO_INCHES
         return distance
 
     def __enter__(self):
@@ -72,16 +71,28 @@ class SaltLevelMonitor(object):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Salty Dog')
-    parser.add_argument('--unit',
-                        action='store_true',
+    parser.add_argument('-u',
+                        '--unit',
+                        action='store',
                         dest='unit',
                         default='metric',
                         help='Unit of measure used in reporting')
-    parser.add_argument('--force-report',
-                        action='store_true',
+    parser.add_argument('-t',
+                        '--threshold',
+                        action='store',
+                        dest='threshold',
+                        help='Threshold for reporting in inches or cm (must match --unit)')
+    parser.add_argument('-f',
+                        '--force-report',
+                        action='store_false',
                         dest='force_report',
                         default=False,
                         help='Force Salty Dog to send SMS regardless of salt level measured')
     args = parser.parse_args(sys.argv[1:])
-    with SaltLevelMonitor(force_report=args.force_report, unit=args.unit) as monitor:
+    parsed_kwargs = {
+        'force_report': args.force_report,
+        'unit': args.unit,
+        'threshold': args.threshold,
+    }
+    with SaltLevelMonitor(**parsed_kwargs) as monitor:
         monitor.check_salt_level()

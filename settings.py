@@ -3,8 +3,7 @@ import os
 GPIO_TRIGGER = 18
 GPIO_ECHO = 24
 SPEED_OF_SOUND = 34300
-SALT_LEVEL_REPORTING_THRESHOLD = 100  # number in cm or ft. Must match chosen unit
-SALT_LEVEL_ALERT_MESSAGE = 'Heads up! It looks like your salt level has dropped below {} {}'
+SALT_LEVEL_ALERT_MESSAGE = 'Heads up! It looks like your salt level has dropped below {0:.2f} {1}'
 READS_PER_CHECK = 5
 CM_TO_INCHES = 2.54
 METRIC = 'metric'
