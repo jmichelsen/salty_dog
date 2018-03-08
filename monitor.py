@@ -15,7 +15,7 @@ class SaltLevelMonitor(object):
         self.force_report = force_report
         self.unit = unit if unit in settings.VALID_UNITS else settings.METRIC
         self.notation = 'in' if unit == settings.IMPERIAL else 'cm'
-        self.threshold = threshold
+        self.threshold = int(threshold)
 
     def check_salt_level(self):
         distance = self.get_average_distance()
@@ -84,7 +84,7 @@ if __name__ == '__main__':
                         help='Threshold for reporting in inches or cm (must match --unit)')
     parser.add_argument('-f',
                         '--force-report',
-                        action='store_false',
+                        action='store_true',
                         dest='force_report',
                         default=False,
                         help='Force Salty Dog to send SMS regardless of salt level measured')
