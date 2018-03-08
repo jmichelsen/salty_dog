@@ -1,4 +1,5 @@
 import argparse
+import logging
 import time
 
 import sys
@@ -8,6 +9,7 @@ import settings
 import RPi.GPIO as GPIO
 
 twilio = Client(settings.TWILIO_PUBLIC_KEY, settings.TWILIO_SECRET_KEY)
+log = logging.getLogger(__name__)
 
 
 class SaltLevelMonitor(object):
@@ -19,6 +21,7 @@ class SaltLevelMonitor(object):
 
     def check_salt_level(self):
         distance = self.get_average_distance()
+        log.info('Salt level is: {} {}'.format(distance, self.notation))
         if distance > self.threshold or self.force_report:
             self.report_salt_level(distance)
 
