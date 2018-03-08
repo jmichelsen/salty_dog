@@ -1,6 +1,8 @@
 import os
 from logging.config import dictConfig
 
+import sys
+
 GPIO_TRIGGER = 18
 GPIO_ECHO = 24
 SPEED_OF_SOUND = 34300
@@ -20,8 +22,7 @@ MESSAGE_TEMPLATE = {'to': REAL_PHONE_NUMBER, 'from_': TWILIO_PHONE_NUMBER, 'body
 
 
 # Logging setup
-PROJECT = os.path.expanduser('~/pi')
-LOG_LOCATION = os.path.join(PROJECT, 'logs')
+PROJECT = os.path.abspath(os.path.split(sys.argv[0])[0])
 LOGGING = {
     'version': 1,
     'formatters': {
@@ -41,7 +42,7 @@ LOGGING = {
         'logfile': {
             'level': 'INFO',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': '{}/salty_dog.log'.format(LOG_LOCATION),
+            'filename': '{}/salty_dog.log'.format(PROJECT),
             'when': 'midnight',
             'backupCount': 7,
             'formatter': 'standard',
