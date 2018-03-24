@@ -28,7 +28,7 @@ class SaltLevelMonitor(object):
         self._convert_units()
         self.remaining_salt = self.tank_depth - self.distance
         message = self._get_report_message()
-        log.info('Salt level is: {} {}'.format(self.remaining_salt, self.notation))
+        log.info('Salt level is: {0:.2f} {1}'.format(self.remaining_salt, self.notation))
         if self.remaining_salt < self.threshold or self.force_report:
             log.info(message['body'])
             self.report_salt_level(message)
