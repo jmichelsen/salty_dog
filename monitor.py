@@ -26,9 +26,11 @@ class SaltLevelMonitor(object):
     def check_salt_level(self):
         self.distance = self.get_average_distance()
         self._convert_units()
+        self.remaining_salt = self.tank_depth - self.distance
         message = self._get_report_message()
-        log.info(message['body'])
+        log.info('Salt level is: {}'.format(self.remaining_salt))
         if self.remaining_salt < self.threshold or self.force_report:
+            log.info(message['body'])
             self.report_salt_level(message)
 
     def get_average_distance(self):
@@ -73,7 +75,6 @@ class SaltLevelMonitor(object):
 
     def _get_report_message(self):
         message = settings.MESSAGE_TEMPLATE.copy()
-        self.remaining_salt = self.tank_depth - self.distance
         message['body'] = settings.SALT_LEVEL_ALERT_MESSAGE.format(
             self.remaining_salt, self.notation)
         return message
