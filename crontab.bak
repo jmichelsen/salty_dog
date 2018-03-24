@@ -6,4 +6,6 @@ REAL_PHONE_NUMBER='the phone number you want to get alerts on'
 READS_PER_CHECK=15
 
 # m h  dom mon dow   command
-00 09 * * 1 /home/pi/.virtualenvs/your_virtual_env/bin/python /home/pi/salty_dog/monitor.py -u imperial -t 30  # this is the path to your script and the args
+00 09 * * 1 /home/pi/.virtualenvs/saltydog/bin/python /home/pi/salty_dog/monitor.py -u imperial -t 8 -d 36  # this is the path to your script and the shorthand args
+00 09 * * 1 /home/pi/.virtualenvs/saltydog/bin/python /home/pi/salty_dog/monitor.py --unit imperial --threshold 8 --tank-depth 36  # longhand args
+00 09 * * 1 /home/pi/.virtualenvs/saltydog/bin/python /home/pi/salty_dog/monitor.py -t 16 -d 70  # example of METRIC config

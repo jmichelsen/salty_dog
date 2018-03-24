@@ -77,6 +77,8 @@ class SaltLevelMonitor(object):
         message = settings.MESSAGE_TEMPLATE.copy()
         message['body'] = settings.SALT_LEVEL_ALERT_MESSAGE.format(
             self.remaining_salt, self.notation)
+        if self.force_report:
+            message['body'] = '{} (forced report)'.format(message['body'])
         return message
 
     @staticmethod
