@@ -12,6 +12,7 @@ CM_TO_INCHES = 2.54
 METRIC = 'metric'
 IMPERIAL = 'imperial'
 VALID_UNITS = [IMPERIAL, METRIC]
+DEFAULT_TANK_DEPTH = 101.6  # average tank depth in centimeters
 
 # APIs
 TWILIO_PUBLIC_KEY = os.environ.get('TWILIO_PUBLIC_KEY')

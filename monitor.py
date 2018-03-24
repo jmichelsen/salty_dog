@@ -13,11 +13,12 @@ log = logging.getLogger(__name__)
 
 
 class SaltLevelMonitor(object):
-    def __init__(self, force_report=False, unit=settings.METRIC, threshold=0):
+    def __init__(self, force_report=False, unit=settings.METRIC, threshold=0, tank_depth=None):
         self.force_report = force_report
         self.unit = unit if unit in settings.VALID_UNITS else settings.METRIC
         self.notation = 'in' if unit == settings.IMPERIAL else 'cm'
         self.threshold = int(threshold)
+        self.tank_depth = self._convert_to_unit(tank_depth or settings.DEFAULT_TANK_DEPTH)
 
     def check_salt_level(self):
         distance = self.get_average_distance()
@@ -27,10 +28,12 @@ class SaltLevelMonitor(object):
 
     def report_salt_level(self, distance):
         message = settings.MESSAGE_TEMPLATE.copy()
-        message['body'] = settings.SALT_LEVEL_ALERT_MESSAGE.format(distance, self.notation)
+        remaining_salt = self.tank_depth - distance
+        message['body'] = settings.SALT_LEVEL_ALERT_MESSAGE.format(remaining_salt, self.notation)
         twilio.messages.create(**message)
 
     def get_average_distance(self):
+        """ used to get an average read since the sensor isn't 100% accurate """
         reads = [self.get_distance() for read in range(settings.READS_PER_CHECK)]
         return sum(reads) / settings.READS_PER_CHECK
 
@@ -56,9 +59,12 @@ class SaltLevelMonitor(object):
         # time difference between start and arrival
         time_elapsed = stop_time - start_time
         distance = (time_elapsed * settings.SPEED_OF_SOUND) / 2
+        return self._convert_to_unit(distance)
+
+    def _convert_to_unit(self, value):
         if self.unit == settings.IMPERIAL:
-            return distance / settings.CM_TO_INCHES
-        return distance
+            return value / settings.CM_TO_INCHES
+        return value
 
     def __enter__(self):
         GPIO.setmode(GPIO.BCM)
@@ -85,6 +91,11 @@ if __name__ == '__main__':
                         action='store',
                         dest='threshold',
                         help='Threshold for reporting in inches or cm (must match --unit)')
+    parser.add_argument('-d',
+                        '--tank-depth',
+                        action='store',
+                        dest='tank_depth',
+                        help='Total depth of your salt tank in inches or cm (must match --unit)')
     parser.add_argument('-f',
                         '--force-report',
                         action='store_true',
@@ -96,6 +107,7 @@ if __name__ == '__main__':
         'force_report': args.force_report,
         'unit': args.unit,
         'threshold': args.threshold,
+        'tank_depth': args.tank_depth
     }
     with SaltLevelMonitor(**parsed_kwargs) as monitor:
         monitor.check_salt_level()
