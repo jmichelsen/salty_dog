@@ -1,0 +1,9 @@
+# Salty dog config vars
+TWILIO_PUBLIC_KEY='your public key here'
+TWILIO_SECRET_KEY='your secret key here'
+TWILIO_PHONE_NUMBER='your twilio phone number, eg 111-222-3345'
+REAL_PHONE_NUMBER='the phone number you want to get alerts on'
+READS_PER_CHECK=15
+
+# m h  dom mon dow   command
+00 09 * * 1 /home/pi/.virtualenvs/your_virtual_env/bin/python /home/pi/salty_dog/monitor.py -u imperial -t 30  # this is the path to your script and the args
